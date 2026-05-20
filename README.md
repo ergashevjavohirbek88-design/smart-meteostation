@@ -24,7 +24,7 @@ Three LEDs show the temperature status.
 | > 28°C | 🔴 Red | HOT |
 
 ## Simulation
-[▶️ Run on Wokwi](СЮДА_ВСТАВЬ_ССЫЛКУ_WOKWI)
+[▶️ Run on Wokwi](https://wokwi.com/projects/464554022428718081)
 
 ## Author
 Javokhir Ergashev 4250
