@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Meteostation — Course Project</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --card: #111827;
+    --border: #1e2d45;
+    --blue: #38bdf8;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --green: #34d399;
+    --text: #e2e8f0;
+    --muted: #64748b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* animated bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 20% 20%, rgba(56,189,248,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 50% at 80% 80%, rgba(251,191,36,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 60px 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  header {
+    text-align: center;
+    margin-bottom: 64px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .badge {
+    display: inline-block;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--blue);
+    border: 1px solid rgba(56,189,248,0.3);
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 24px;
+  }
+
+  h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+
+  h1 span { color: var(--blue); }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 1.1rem;
+    font-weight: 300;
+    max-width: 500px;
+    margin: 0 auto 32px;
+    line-height: 1.6;
+  }
+
+  .hero-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--blue);
+    color: #0a0e1a;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 14px 28px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 0 30px rgba(56,189,248,0.3);
+  }
+
+  .hero-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 40px rgba(56,189,248,0.5);
+  }
+
+  /* LCD DISPLAY */
+  .lcd-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 64px;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  .lcd {
+    background: #1a2a1a;
+    border: 3px solid #2d4a2d;
+    border-radius: 8px;
+    padding: 20px 28px;
+    font-family: 'Space Mono', monospace;
+    box-shadow: 0 0 40px rgba(52, 211, 153, 0.15), inset 0 0 20px rgba(0,0,0,0.5);
+    min-width: 280px;
+  }
+
+  .lcd-line {
+    font-size: 1.2rem;
+    color: #4ade80;
+    text-shadow: 0 0 10px rgba(74,222,128,0.8);
+    letter-spacing: 0.05em;
+    line-height: 1.8;
+  }
+
+  .lcd-cursor {
+    display: inline-block;
+    width: 10px;
+    height: 18px;
+    background: #4ade80;
+    animation: blink 1s infinite;
+    vertical-align: middle;
+    margin-left: 2px;
+  }
+
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* SECTIONS */
+  .section {
+    margin-bottom: 48px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .section-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* COMPONENTS GRID */
+  .components-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+  }
+
+  .comp-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .comp-card:hover {
+    border-color: var(--blue);
+    transform: translateY(-2px);
+  }
+
+  .comp-icon {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+  }
+
+  .comp-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .comp-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* STATUS TABLE */
+  .status-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .status-table th {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 14px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .status-table td {
+    padding: 16px 20px;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .status-table tr:last-child td { border-bottom: none; }
+
+  .led-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+  }
+
+  .dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-blue { background: var(--blue); box-shadow: 0 0 8px var(--blue); }
+  .dot-yellow { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
+  .dot-red { background: var(--red); box-shadow: 0 0 8px var(--red); }
+
+  /* CODE BLOCK */
+  .code-block {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    overflow-x: auto;
+    color: #c9d1d9;
+  }
+
+  .code-block .kw { color: #ff7b72; }
+  .code-block .fn { color: #d2a8ff; }
+  .code-block .cm { color: #8b949e; }
+  .code-block .str { color: #a5d6ff; }
+  .code-block .num { color: #79c0ff; }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding-top: 48px;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 13px;
+    animation: fadeUp 0.8s 0.6s ease both;
+  }
+
+  footer a { color: var(--blue); text-decoration: none; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="badge">Course Project 1 — Individual</div>
+    <h1>Smart<br><span>Meteostation</span></h1>
+    <p class="subtitle">Arduino-based weather station that reads temperature & humidity and displays live data on LCD with LED indicators.</p>
+    <a href="https://wokwi.com" class="hero-btn">▶ Run Simulation on Wokwi</a>
+  </header>
+
+  <div class="lcd-wrap">
+    <div class="lcd">
+      <div class="lcd-line">Temp: 24.0°C</div>
+      <div class="lcd-line">Hum:  40.0%<span class="lcd-cursor"></span></div>
+    </div>
+  </div>
+
+  <div class="section" style="animation-delay:0.1s">
+    <div class="section-title">Components</div>
+    <div class="components-grid">
+      <div class="comp-card">
+        <div class="comp-icon">🎛️</div>
+        <div class="comp-name">Arduino Uno</div>
+        <div class="comp-desc">Main microcontroller that runs the program</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">🌡️</div>
+        <div class="comp-name">DHT22 Sensor</div>
+        <div class="comp-desc">Reads temperature and humidity data</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">📺</div>
+        <div class="comp-name">LCD 16×2</div>
+        <div class="comp-desc">Displays live temperature and humidity</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">💡</div>
+        <div class="comp-name">3× LED</div>
+        <div class="comp-desc">Blue, Yellow, Red status indicators</div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-icon">⚡</div>
+        <div class="comp-name">3× Resistor</div>
+        <div class="comp-desc">220Ω resistors to protect LEDs</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" style="animation-delay:0.2s">
+    <div class="section-title">How It Works</div>
+    <table class="status-table">
+      <thead>
+        <tr>
+          <th>Temperature</th>
+          <th>LED Indicator</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Below 20°C</td>
+          <td><span class="led-dot"><span class="dot dot-blue"></span> Blue</span></td>
+          <td>❄️ COLD</td>
+        </tr>
+        <tr>
+          <td>20°C – 28°C</td>
+          <td><span class="led-dot"><span class="dot dot-yellow"></span> Yellow</span></td>
+          <td>✅ NORMAL</td>
+        </tr>
+        <tr>
+          <td>Above 28°C</td>
+          <td><span class="led-dot"><span class="dot dot-red"></span> Red</span></td>
+          <td>🔥 HOT</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section" style="animation-delay:0.3s">
+    <div class="section-title">Code Snippet</div>
+    <div class="code-block">
+<span class="cm">// Read sensor data</span>
+<span class="kw">float</span> temp = dht.<span class="fn">readTemperature</span>();
+<span class="kw">float</span> hum  = dht.<span class="fn">readHumidity</span>();
+
+<span class="cm">// Display on LCD</span>
+lcd.<span class="fn">setCursor</span>(<span class="num">0</span>, <span class="num">0</span>);
+lcd.<span class="fn">print</span>(<span class="str">"Temp: "</span>); lcd.<span class="fn">print</span>(temp);
+
+<span class="cm">// LED logic</span>
+<span class="kw">if</span> (temp &lt; <span class="num">20.0</span>) {
+  <span class="fn">digitalWrite</span>(LED_BLUE, HIGH);   <span class="cm">// cold</span>
+} <span class="kw">else if</span> (temp &lt; <span class="num">28.0</span>) {
+  <span class="fn">digitalWrite</span>(LED_YELLOW, HIGH); <span class="cm">// normal</span>
+} <span class="kw">else</span> {
+  <span class="fn">digitalWrite</span>(LED_RED, HIGH);    <span class="cm">// hot</span>
+}
+    </div>
+  </div>
+
+  <footer>
+    <p>Built with  by <strong>Javohir Ergashev</strong> &nbsp;·&nbsp; Simulated on <a href="https://wokwi.com">Wokwi</a> &nbsp;·&nbsp; <a href="https://github.com/ergashevjavohirbek88-design/smart-meteostation">GitHub Repo</a></p>
+  </footer>
+
+</div>
+</body>
+</html>
